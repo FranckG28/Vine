@@ -49,7 +49,6 @@ export default function Home({ products, error }: { products: Product[], error: 
 export async function getServerSideProps() {
   try {
     const res = await axios.get(API_PRODUCTS_COLLECTION);
-    console.log(res.data.data);
     return {
       props: {
         products: res.data.data
