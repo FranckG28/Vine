@@ -1,14 +1,37 @@
 import Layout from "@/components/layout";
 import Balancer from "react-wrap-balancer";
 import { motion } from "framer-motion";
-import { API_PRODUCTS_COLLECTION, FADE_DOWN_ANIMATION_VARIANTS } from "@/lib/constants";
-import axios from "axios";
+import { FADE_DOWN_ANIMATION_VARIANTS } from "@/lib/constants";
 import { Product } from "models/product";
 import ProductsGrid from "@/components/home/products-grid";
+import { getProducts } from "@/lib/vpp-api";
+import { useEffect, useState } from "react";
 
-axios.defaults.headers.common["Authorization"] = `Bearer ${process.env.VPP_API_KEY}`;
+export default function Home(props: { products: Product[], error: string, pageCount: number, count: number }) {
 
-export default function Home({ products, error }: { products: Product[], error: string }) {
+  const [error, setError] = useState(props.error);
+  const [products, setProductList] = useState(props.products);
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (error) {
+      console.error(error);
+    }
+  }, [error]);
+
+  const loadMore = () => {
+    setIsLoading(true);
+    getProducts(page + 1).then((res) => {
+      setProductList([...products, ...res.data.data]);
+      setPage(page + 1);
+    }).catch((error) => {
+      setError(error);
+    }).finally(() => {
+      setIsLoading(false);
+    });
+  };
+
   return (
     <Layout>
       <motion.div
@@ -37,21 +60,32 @@ export default function Home({ products, error }: { products: Product[], error: 
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
           <Balancer>
-            Héhé
+            {props.count + " produits, " + props.pageCount + " pages"}
           </Balancer>
         </motion.p>
       </motion.div>
+
       <ProductsGrid products={products} error={error} />
+
+      <motion.button variants={FADE_DOWN_ANIMATION_VARIANTS}
+        className="px-5 py-3 bg-white bg-opacity-60 border-t-slate-300 shadow rounded-lg hover:bg-opacity-100 hover:shadow-md transition-all duration-100 ease-in-out z-10"
+        disabled={props.pageCount <= page || isLoading}
+        onClick={loadMore}>
+        {isLoading ? "Chargement en cours ..." :
+          page >= props.pageCount ? "C'est fini 😿" : "Charger la suite"}
+      </motion.button>
     </Layout >
   );
 }
 
 export async function getServerSideProps() {
   try {
-    const res = await axios.get(API_PRODUCTS_COLLECTION);
+    const res = await getProducts();
     return {
       props: {
-        products: res.data.data
+        products: res.data.data,
+        pageCount: res.data.meta?.pagination?.pageCount,
+        count: res.data.meta?.pagination?.total
       }
     };
   } catch (error) {

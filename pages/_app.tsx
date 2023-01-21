@@ -22,6 +22,7 @@ export default function MyApp({
   Component,
   pageProps: { session, ...pageProps },
 }: AppProps<{ session: Session }>) {
+
   return (
     <SessionProvider session={session}>
       <RWBProvider>

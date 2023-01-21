@@ -2,7 +2,7 @@ import { Product } from "models/product";
 import ErrorDisplay from "../shared/error-display";
 import Card from "./card";
 
-export default function ProductsGrid({ products, error }: { products: Product[], error: string }) {
+export default function ProductsGrid({ error, products }: { products: Product[], error: string }) {
 
     if (error) {
         return <ErrorDisplay error={error} />
@@ -24,5 +24,6 @@ export default function ProductsGrid({ products, error }: { products: Product[],
                 </a>
             ))}
         </div>
+
     );
 }
