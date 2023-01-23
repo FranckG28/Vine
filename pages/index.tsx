@@ -6,15 +6,21 @@ import { Product } from "models/product";
 import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
 import { useEffect, useState } from "react";
-import { dateToString, timeAgo } from "@/lib/utils";
+import { dateToString } from "@/lib/utils";
+import { useDebouncedCallback } from "use-debounce";
 
 export default function Home(props: { products: Product[], error: string, pageCount: number, count: number }) {
 
   const [latestUpdate, setLatestUpdate] = useState<number>(0);
   const [error, setError] = useState(props.error);
   const [products, setProductList] = useState(props.products);
+  const [pageCount, setPageCount] = useState(props.pageCount);
+  const [resultCount, setResultCount] = useState(props.count);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchInput, setSearchInput] = useState("");
+
+  const debounceSearch = useDebouncedCallback((value) => setSearchInput(value), 500);
 
   useEffect(() => {
     if (error) {
@@ -23,25 +29,39 @@ export default function Home(props: { products: Product[], error: string, pageCo
   }, [error]);
 
   useEffect(() => {
-    setLatestUpdate(Math.min(...products.map((product) => Date.parse(product.attributes.updatedAt))));
+    const lastUpdate = Math.min(...products.map((product) => Date.parse(product.attributes.updatedAt)));
+    if (lastUpdate) {
+      setLatestUpdate(lastUpdate);
+    }
   }, [latestUpdate]);
 
-  const loadMore = () => {
+  useEffect(() => {
+    setProductList([]);
+    load(true);
+  }, [searchInput]);
+
+  const load = (reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
-    getProducts(page + 1).then((res) => {
-      setProductList([...products, ...res.data.data]);
-      setPage(page + 1);
+    getProducts(requestedPage || 1, searchInput).then((res) => {
+      setProductList(reset ? res.data.data : [...products, ...res.data.data]);
+      setPageCount(res.data.meta?.pagination?.pageCount || 0);
+      setResultCount(res.data.meta?.pagination?.total || 0);
     }).catch((error) => {
       setError(error);
     }).finally(() => {
       setIsLoading(false);
     });
+  }
+
+  const loadMore = () => {
+    load(false, page + 1);
+    setPage(page + 1);
   };
 
   return (
     <Layout>
       <motion.div
-        className="max-w-xl px-5 xl:px-0"
+        className="max-w-xl px-5 xl:px-0 flex flex-col gap-8"
         initial="hidden"
         whileInView="show"
         animate="show"
@@ -61,24 +81,45 @@ export default function Home(props: { products: Product[], error: string, pageCo
         >
           <Balancer>Vine Dashboard</Balancer>
         </motion.h1>
+
         <motion.p
-          className="mt-6 text-center text-gray-500 md:text-xl"
+          className="text-center text-gray-500 md:text-xl"
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
           <Balancer>
-            {props.count + " produits • Dernière mise à jour le " + dateToString(new Date(latestUpdate), true)}
+            {"Dernière mise à jour le " + dateToString(new Date(latestUpdate), true)}
           </Balancer>
         </motion.p>
+        <motion.input
+          className="hidden sm:flex items-center w-72 text-left space-x-3 px-4 h-12 border-slate-500 bg-white ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg text-slate-800 placeholder:text-slate-400 dark:bg-slate-800 dark:ring-0 dark:text-slate-300 dark:highlight-white/5 dark:hover:bg-slate-700 mx-auto"
+          variants={FADE_DOWN_ANIMATION_VARIANTS}
+          type="text"
+          placeholder="Rechercher un produit ..."
+          onChange={(e) => {
+            debounceSearch(e.target.value);
+          }}
+        >
+        </motion.input>
+
+        <motion.p
+          className="text-center text-gray-500 md:text-xl"
+          variants={FADE_DOWN_ANIMATION_VARIANTS}
+        >
+          <Balancer>
+            {resultCount + " produits"}
+          </Balancer>
+        </motion.p>
+
       </motion.div>
 
       <ProductsGrid products={products} error={error} />
 
       <motion.button variants={FADE_DOWN_ANIMATION_VARIANTS}
         className="px-5 py-3 bg-white bg-opacity-60 border-t-slate-300 shadow rounded-lg hover:bg-opacity-100 hover:shadow-md transition-all duration-100 ease-in-out z-10"
-        disabled={props.pageCount <= page || isLoading}
+        disabled={pageCount <= page || isLoading}
         onClick={loadMore}>
         {isLoading ? "Chargement en cours ..." :
-          page >= props.pageCount ? "C'est fini 😿" : "Charger la suite"}
+          page >= pageCount ? "C'est fini 😿" : "Charger la suite"}
       </motion.button>
     </Layout >
   );
