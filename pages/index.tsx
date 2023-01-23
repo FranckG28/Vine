@@ -29,9 +29,8 @@ export default function Home(props: { products: Product[], error: string, pageCo
   }, [error]);
 
   useEffect(() => {
-    const lastUpdate = Math.min(...products.map((product) => Date.parse(product.attributes.updatedAt)));
-    if (lastUpdate) {
-      setLatestUpdate(lastUpdate);
+    if (!latestUpdate) {
+      setLatestUpdate(Math.min(...products.map((product) => Date.parse(product.attributes.updatedAt))));
     }
   }, [latestUpdate]);
 
