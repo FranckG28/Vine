@@ -6,9 +6,11 @@ import { Product } from "models/product";
 import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
 import { useEffect, useState } from "react";
+import { dateToString, timeAgo } from "@/lib/utils";
 
 export default function Home(props: { products: Product[], error: string, pageCount: number, count: number }) {
 
+  const [latestUpdate, setLatestUpdate] = useState<number>(0);
   const [error, setError] = useState(props.error);
   const [products, setProductList] = useState(props.products);
   const [page, setPage] = useState(1);
@@ -19,6 +21,10 @@ export default function Home(props: { products: Product[], error: string, pageCo
       console.error(error);
     }
   }, [error]);
+
+  useEffect(() => {
+    setLatestUpdate(Math.min(...products.map((product) => Date.parse(product.attributes.updatedAt))));
+  }, [latestUpdate]);
 
   const loadMore = () => {
     setIsLoading(true);
@@ -60,7 +66,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
           <Balancer>
-            {props.count + " produits, " + props.pageCount + " pages"}
+            {props.count + " produits • Dernière mise à jour le " + dateToString(new Date(latestUpdate), true)}
           </Balancer>
         </motion.p>
       </motion.div>

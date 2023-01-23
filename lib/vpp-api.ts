@@ -8,7 +8,7 @@ const qs = require("qs");
 const vppAxios = axios.create({
     headers: {
         Authorization: `Bearer ${process.env.NEXT_PUBLIC_VPP_API_KEY}`
-    }
+    },
 });
 
 export const getProducts = (page = 1) => vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + qs.stringify({

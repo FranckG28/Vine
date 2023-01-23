@@ -4,5 +4,8 @@ export interface Product {
         title: string;
         link: string;
         image: string;
+        createdAt: string;
+        updatedAt: string;
+        publishedAt: string;
     }
 }
