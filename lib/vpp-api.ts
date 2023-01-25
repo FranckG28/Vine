@@ -12,6 +12,7 @@ const vppAxios = axios.create({
 });
 
 export const getProducts = (page = 1, search = "") => vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + qs.stringify({
+    sort: "createdAt:desc",
     pagination: {
         page,
         withCount: true,
