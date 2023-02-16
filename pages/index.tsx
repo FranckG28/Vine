@@ -6,7 +6,7 @@ import { Product } from "models/product";
 import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
 import { useEffect, useState } from "react";
-import { dateToString } from "@/lib/utils";
+import { dateToString, timeAgo } from "@/lib/utils";
 import { useDebouncedCallback } from "use-debounce";
 import { LoadingCircle } from "@/components/shared/icons";
 
@@ -31,7 +31,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
   useEffect(() => {
     if (!latestUpdate) {
-      setLatestUpdate(Math.min(...products.map((product) => Date.parse(product.attributes.updatedAt))));
+      setLatestUpdate(Math.max(...products.map((product) => Date.parse(product.attributes.updatedAt))));
     }
   }, [latestUpdate]);
 
@@ -87,11 +87,11 @@ export default function Home(props: { products: Product[], error: string, pageCo
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
           <Balancer>
-            {"Dernière mise à jour le " + dateToString(new Date(latestUpdate), true)}
+            {"Dernière mise à jour " + timeAgo(new Date(latestUpdate))}
           </Balancer>
         </motion.p>
         <motion.input
-          className="sm:flex items-center w-72 text-left space-x-3 px-4 h-12 border-slate-500 bg-white ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-sm rounded-lg text-slate-800 placeholder:text-slate-400 dark:bg-slate-800 dark:ring-0 dark:text-slate-300 dark:highlight-white/5 dark:hover:bg-slate-700 mx-auto"
+          className="sm:flex items-center w-72 text-left space-x-3 px-4 h-12 border-slate-500 bg-white ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:shadow-sm rounded-lg text-slate-800 placeholder:text-slate-400 dark:bg-slate-800 dark:ring-0 dark:text-slate-300 dark:highlight-white/5 dark:hover:bg-slate-700 mx-auto"
           variants={FADE_DOWN_ANIMATION_VARIANTS}
           type="text"
           placeholder="Rechercher un produit ..."

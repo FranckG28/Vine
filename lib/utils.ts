@@ -5,10 +5,9 @@ export const dateToString = (date: Date, displayTime?: boolean): string => {
   return new Date(date).toLocaleDateString("fr-FR") + (displayTime ? ` à ${new Date(date).toLocaleTimeString("fr-FR")}` : "");
 };
 
-export const timeAgo = (timestamp: Date, timeOnly?: boolean): string => {
+export const timeAgo = (timestamp: Date): string => {
   if (!timestamp) return "jamais";
-  return `${ms(Date.now() - new Date(timestamp).getTime())}${timeOnly ? "" : " ago"
-    }`;
+  return `il y a ${ms(Date.now() - new Date(timestamp).getTime(), { long: true })}`;
 };
 
 export async function fetcher<JSON = any>(
