@@ -15,11 +15,11 @@ export default function ProductsGrid({ error, products }: { products: Product[],
 
     return (
         <div className="my-10 grid w-full max-w-screen-xl animate-[slide-down-fade_0.5s_ease-in-out] grid-cols-1 gap-5 px-5 md:grid-cols-3 xl:px-0">
-            {products.map(({ attributes: { title, link, image, updatedAt } }, index) => (
+            {products.map(({ attributes: { title, link, image, page, updatedAt } }, index) => (
                 <a href={link} key={index} target="_blank" rel="noreferrer">
                     <Card
                         title={title}
-                        description={dateToString(new Date(Date.parse(updatedAt)))}
+                        description={dateToString(new Date(Date.parse(updatedAt))) + ((!page) ? " " : " - *page " + page + "*")}
                         demo={<img src={image}></img>}
                     />
                 </a>
