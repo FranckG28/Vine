@@ -4,7 +4,7 @@ const DOMAIN = "https://vine.franck-g.fr";
 
 export default function Meta({
   title = "Vine Dashboard - Franck G.",
-  description = "Consultez facilement les produits actuellement proposés en test.",
+  description = "Consultez facilement les produits disponibles en test.",
   image = `${DOMAIN}/api/og`,
 }: {
   title?: string;

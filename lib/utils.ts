@@ -6,7 +6,7 @@ export const dateToString = (date: Date, displayTime?: boolean): string => {
 };
 
 export const timeAgo = (timestamp: Date, timeOnly?: boolean): string => {
-  if (!timestamp) return "never";
+  if (!timestamp) return "jamais";
   return `${ms(Date.now() - new Date(timestamp).getTime())}${timeOnly ? "" : " ago"
     }`;
 };
