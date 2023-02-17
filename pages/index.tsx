@@ -25,7 +25,10 @@ export default function Home(props: { products: Product[], error: string, pageCo
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const { FiltersModal, setShowFiltersModal } = useFiltersModal();
+
+  const { FiltersModal, setShowFiltersModal } = useFiltersModal(() => {
+    setShowFiltersModal(false);
+  });
 
   const load = useCallback((reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
