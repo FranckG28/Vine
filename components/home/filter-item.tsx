@@ -12,8 +12,8 @@ export default function FilterItem({ filter, onChange }: {
     return <button
         className="flex p-5 gap-5 border border-slate-200 rounded-xl w-full hover:bg-slate-50 transition"
         onClick={() => {
+            onChange(!checked ? filter.filter : {});
             setChecked(!checked);
-            onChange(checked ? filter.filter : {});
         }}>
         <input
             type="checkbox"
