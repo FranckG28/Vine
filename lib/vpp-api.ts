@@ -16,11 +16,13 @@ export const getProducts = (
     page = 1,
     {
         search = "",
-        filter = {}
+        filters = {}
     }: {
         search?: string;
-        filter?: Filter;
-    } = {}) => vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + qs.stringify({
+        filters?: Filter;
+    } = {}) => {
+
+    const query = {
         sort: "createdAt:desc",
         pagination: {
             page,
@@ -31,7 +33,12 @@ export const getProducts = (
                 title: {
                     $containsi: search
                 },
-                ...filter
             }
+        }),
+        ...((filters && Object.keys(filters).length > 0) && {
+            filters
         })
-    }, { encoreValuesOnly: true }));
+    };
+
+    return vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + qs.stringify(query, { encoreValuesOnly: true }));
+};

@@ -26,9 +26,10 @@ export default function Home(props: { products: Product[], error: string, pageCo
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
+  const [filters, setFilters] = useState({} as Filter);
 
   const { FiltersModal, setShowFiltersModal } = useFiltersModal((filters: Filter) => {
-    console.log(filters)
+    setFilters(filters);
     setShowFiltersModal(false);
   });
 
@@ -36,6 +37,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
     setIsLoading(true);
     getProducts(requestedPage || 1, {
       search: searchInput,
+      filters
     }).then((res) => {
       setProductList(reset ? res.data.data : [...products, ...res.data.data]);
       setPageCount(res.data.meta?.pagination?.pageCount || 0);
@@ -45,7 +47,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
     }).finally(() => {
       setIsLoading(false);
     });
-  }, [searchInput, products]);
+  }, [searchInput, products, filters]);
 
 
   useEffect(() => {
@@ -63,7 +65,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
   useEffect(() => {
     setProductList([]);
     load(true);
-  }, [searchInput]);
+  }, [searchInput, filters]);
 
   const loadMore = () => {
     load(false, page + 1);
@@ -109,9 +111,9 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
           <button
             onClick={() => setShowFiltersModal(true)}
-            className={"flex items-center justify-center rounded-xl px-8 py-3 transition focus:outline-none " + inactiveFilterStyle}
+            className={"flex items-center justify-center rounded-xl px-8 py-3 transition focus:outline-none " + (Object.values(filters).length > 0 ? activeFilterStyle : inactiveFilterStyle)}
           >
-            Filtrer
+            {Object.values(filters).length > 0 ? "Filtres" : "Filtrer"}
           </button>
         </motion.div>
 
@@ -120,7 +122,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
           <Balancer>
-            <CountingNumbers className="inline" value={resultCount} /> produits
+            <p><CountingNumbers className="inline" value={resultCount} /> produits</p>
           </Balancer>
         </motion.p>
 
