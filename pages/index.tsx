@@ -42,7 +42,9 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
   const load = (reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
-    getProducts(requestedPage || 1, searchInput).then((res) => {
+    getProducts(requestedPage || 1, {
+      search: searchInput,
+    }).then((res) => {
       setProductList(reset ? res.data.data : [...products, ...res.data.data]);
       setPageCount(res.data.meta?.pagination?.pageCount || 0);
       setResultCount(res.data.meta?.pagination?.total || 0);
@@ -90,6 +92,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
             {"Dernière mise à jour " + timeAgo(new Date(latestUpdate))}
           </Balancer>
         </motion.p>
+
         <motion.input
           className="sm:flex items-center w-72 text-left space-x-3 px-4 h-12 border-slate-500 bg-white ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:shadow-sm rounded-lg text-slate-800 placeholder:text-slate-400 dark:bg-slate-800 dark:ring-0 dark:text-slate-300 dark:highlight-white/5 dark:hover:bg-slate-700 mx-auto"
           variants={FADE_DOWN_ANIMATION_VARIANTS}

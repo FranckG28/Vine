@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Filter } from "models/filter";
 import { Product } from "models/product";
 import { StrapiGetResponse } from "models/strapi-get-response";
 import { API_PRODUCTS_COLLECTION } from "./constants";
@@ -11,17 +12,26 @@ const vppAxios = axios.create({
     },
 });
 
-export const getProducts = (page = 1, search = "") => vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + qs.stringify({
-    sort: "createdAt:desc",
-    pagination: {
-        page,
-        withCount: true,
-    },
-    ...((search && search !== "") && {
-        filters: {
-            title: {
-                $containsi: search
+export const getProducts = (
+    page = 1,
+    {
+        search = "",
+        filters = []
+    }: {
+        search?: string;
+        filters?: Filter[];
+    }) => vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + qs.stringify({
+        sort: "createdAt:desc",
+        pagination: {
+            page,
+            withCount: true,
+        },
+        ...((search && search !== "") && {
+            filters: {
+                title: {
+                    $containsi: search
+                },
+                ...filters
             }
-        }
-    })
-}, { encoreValuesOnly: true }));
+        })
+    }, { encoreValuesOnly: true }));
