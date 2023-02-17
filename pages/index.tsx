@@ -121,9 +121,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
           className="text-center text-gray-500 md:text-xl"
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
-          <Balancer>
-            <p><CountingNumbers className="inline" value={resultCount} /> produits</p>
-          </Balancer>
+          <CountingNumbers className="inline" value={resultCount} /> produits
         </motion.p>
 
       </motion.div>

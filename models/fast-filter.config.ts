@@ -1,7 +1,7 @@
 import { FastFilter } from "./fast-filter";
 
 const notContainsiList = (key: string, list: string[]) => ({
-    $and: list.map((item) => ({
+    '$and': list.map((item) => ({
         [key]: {
             $notContainsi: item
         }

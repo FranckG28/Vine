@@ -21,7 +21,7 @@ export default function Layout({
     <>
       <Meta {...meta} />
       {/* <SignInModal /> */}
-      <div className="fixed h-screen w-full bg-gradient-to-br from-indigo-50 via-white to-indigo-400/20" />
+      <div className="fixed h-screen w-full bg-gradient-to-br from-indigo-50 via-white to-indigo-400/20 -z-10" />
       <div
         className={`fixed top-0 w-full ${scrolled
           ? "border-b border-gray-200 bg-white/50 backdrop-blur-xl"

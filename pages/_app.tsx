@@ -19,7 +19,7 @@ const inter = Inter({
 export default function MyApp({
   Component,
   pageProps: { ...pageProps },
-}) {
+}: AppProps) {
 
   return (<>
     <RWBProvider>
