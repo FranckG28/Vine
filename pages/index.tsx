@@ -11,6 +11,7 @@ import { LoadingCircle } from "@/components/shared/icons";
 import SearchInput from "@/components/home/search-input";
 import { useFiltersModal } from "@/components/home/filters-modal";
 import CountingNumbers from "@/components/shared/counting-numbers";
+import { Filter } from "models/filter";
 
 const activeFilterStyle = "bg-indigo-500 text-white hover:bg-indigo-600 border-t border-indigo-400 hover:shadow-lg";
 const inactiveFilterStyle = "border border-indigo-200 text-indigo-500 hover:bg-indigo-500 hover:text-white hover:shadow-lg";
@@ -26,7 +27,8 @@ export default function Home(props: { products: Product[], error: string, pageCo
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
 
-  const { FiltersModal, setShowFiltersModal } = useFiltersModal(() => {
+  const { FiltersModal, setShowFiltersModal } = useFiltersModal((filters: Filter) => {
+    console.log(filters)
     setShowFiltersModal(false);
   });
 
