@@ -5,8 +5,8 @@ import { FADE_DOWN_ANIMATION_VARIANTS } from "@/lib/constants";
 import { Product } from "models/product";
 import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
-import { useEffect, useState } from "react";
-import { dateToString, timeAgo } from "@/lib/utils";
+import { useCallback, useEffect, useState } from "react";
+import { timeAgo } from "@/lib/utils";
 import { useDebouncedCallback } from "use-debounce";
 import { LoadingCircle } from "@/components/shared/icons";
 
@@ -23,24 +23,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
   const debounceSearch = useDebouncedCallback((value) => setSearchInput(value), 500);
 
-  useEffect(() => {
-    if (error) {
-      console.error(error);
-    }
-  }, [error]);
-
-  useEffect(() => {
-    if (!latestUpdate) {
-      setLatestUpdate(Math.max(...products.map((product) => Date.parse(product.attributes.updatedAt))));
-    }
-  }, [latestUpdate]);
-
-  useEffect(() => {
-    setProductList([]);
-    load(true);
-  }, [searchInput]);
-
-  const load = (reset: boolean, requestedPage?: number) => {
+  const load = useCallback((reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
     getProducts(requestedPage || 1, {
       search: searchInput,
@@ -53,7 +36,25 @@ export default function Home(props: { products: Product[], error: string, pageCo
     }).finally(() => {
       setIsLoading(false);
     });
-  }
+  }, [searchInput, products]);
+
+
+  useEffect(() => {
+    if (error) {
+      console.error(error);
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (!latestUpdate) {
+      setLatestUpdate(Math.max(...products.map((product) => Date.parse(product.attributes.updatedAt))));
+    }
+  }, [latestUpdate, products]);
+
+  useEffect(() => {
+    setProductList([]);
+    load(true);
+  }, [searchInput]);
 
   const loadMore = () => {
     load(false, page + 1);
