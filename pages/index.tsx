@@ -7,8 +7,13 @@ import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
 import { useCallback, useEffect, useState } from "react";
 import { timeAgo } from "@/lib/utils";
-import { useDebouncedCallback } from "use-debounce";
 import { LoadingCircle } from "@/components/shared/icons";
+import SearchInput from "@/components/home/search-input";
+import { useFiltersModal } from "@/components/home/filters-modal";
+import CountingNumbers from "@/components/shared/counting-numbers";
+
+const activeFilterStyle = "bg-indigo-500 text-white hover:bg-indigo-600 border-t border-indigo-400 hover:shadow-lg";
+const inactiveFilterStyle = "border border-indigo-200 text-indigo-500 hover:bg-indigo-500 hover:text-white hover:shadow-lg";
 
 export default function Home(props: { products: Product[], error: string, pageCount: number, count: number }) {
 
@@ -20,8 +25,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-
-  const debounceSearch = useDebouncedCallback((value) => setSearchInput(value), 500);
+  const { FiltersModal, setShowFiltersModal } = useFiltersModal();
 
   const load = useCallback((reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
@@ -63,6 +67,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
   return (
     <Layout>
+      <FiltersModal />
       <motion.div
         className="max-w-xl px-5 xl:px-0 flex flex-col gap-8"
         initial="hidden"
@@ -94,23 +99,23 @@ export default function Home(props: { products: Product[], error: string, pageCo
           </Balancer>
         </motion.p>
 
-        <motion.input
-          className="sm:flex items-center w-72 text-left space-x-3 px-4 h-12 border-slate-500 bg-white ring-1 ring-slate-900/10 hover:ring-slate-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 hover:shadow-sm rounded-lg text-slate-800 placeholder:text-slate-400 dark:bg-slate-800 dark:ring-0 dark:text-slate-300 dark:highlight-white/5 dark:hover:bg-slate-700 mx-auto"
-          variants={FADE_DOWN_ANIMATION_VARIANTS}
-          type="text"
-          placeholder="Rechercher un produit ..."
-          onChange={(e) => {
-            debounceSearch(e.target.value);
-          }}
-        >
-        </motion.input>
+        <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS} className="flex max-md:flex-col gap-3 items-center">
+          <SearchInput className="flex-1" onSearch={setSearchInput}></SearchInput>
+
+          <button
+            onClick={() => setShowFiltersModal(true)}
+            className={"flex items-center justify-center rounded-xl px-8 py-3 transition focus:outline-none " + inactiveFilterStyle}
+          >
+            Filtrer
+          </button>
+        </motion.div>
 
         <motion.p
           className="text-center text-gray-500 md:text-xl"
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
           <Balancer>
-            {resultCount + " produits"}
+            <CountingNumbers className="inline" value={resultCount} /> produits
           </Balancer>
         </motion.p>
 
