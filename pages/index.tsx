@@ -7,12 +7,13 @@ import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
 import { useCallback, useEffect, useState } from "react";
 import { timeAgo } from "@/lib/utils";
-import { LoadingCircle } from "@/components/shared/icons";
+import { LoadingCircle, LoadingDots, LoadingSpinner } from "@/components/shared/icons";
 import SearchInput from "@/components/home/search-input";
 import CountingNumbers from "@/components/shared/counting-numbers";
 import { Filter } from "models/filter";
 import FiltersButton from "@/components/home/filters-button";
 import { defaultFilters } from "models/fast-filter.config";
+import Button from "@/components/home/button";
 
 export default function Home(props: { products: Product[], error: string, pageCount: number, count: number }) {
 
@@ -114,14 +115,12 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
       <ProductsGrid products={products} error={error} />
 
-      <motion.button variants={FADE_DOWN_ANIMATION_VARIANTS}
-        className="px-5 py-3 bg-white bg-opacity-60 border-t-slate-300 shadow rounded-lg hover:bg-opacity-100 hover:shadow-md transition-all duration-100 ease-in-out z-10 flex gap-2 items-center justify-center mx-auto"
-        disabled={pageCount <= page || isLoading}
-        onClick={loadMore}>
-        {isLoading ? "" :
-          page >= pageCount ? "C'est fini 😿" : "Charger la suite"}
-        {isLoading && <LoadingCircle />}
-      </motion.button>
+      <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
+        <Button onClick={loadMore} disabled={pageCount <= page} isLoading={isLoading}>
+          {page >= pageCount ? "C'est fini 😿" : "Voir plus"}
+        </Button>
+      </motion.div>
+
     </Layout >
   );
 }
