@@ -40,7 +40,5 @@ export const getProducts = (
         }
     };
 
-    const stringifiedQuery = qs.stringify(query, { encode: false });
-
-    return vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + stringifiedQuery);
+    return vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + qs.stringify(query, { encode: true }));
 };

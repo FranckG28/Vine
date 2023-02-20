@@ -16,7 +16,7 @@ export const defaultFilters: FastFilter[] = [
     {
         id: 3,
         name: "Compléments alimentaires",
-        filters: notContainsiList("title", ["complément", "alimentaire", "vitamines", "gélule"])
+        filters: notContainsiList("title", ["complément", "alimentaire", "vitamines", "gélule", "vitamine", "gélules", "comprimés"])
     },
     {
         id: 4,
