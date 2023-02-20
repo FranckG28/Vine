@@ -58,7 +58,7 @@ const FiltersModal = ({
 
           <div>
             <button onClick={toggleAllFilters} className="font-medium text-indigo-500 hover:text-indigo-600 active:text-indigo-700">
-              {activeFilters.length > 0 ? "Tout déselectionner" : "Tout sélectionner"}
+              {activeFilters.length === fastFilters.length ? "Tout déselectionner" : "Tout sélectionner"}
             </button>
           </div>
 
