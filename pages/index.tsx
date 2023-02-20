@@ -7,7 +7,6 @@ import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
 import { useCallback, useEffect, useState } from "react";
 import { timeAgo } from "@/lib/utils";
-import { LoadingCircle, LoadingDots, LoadingSpinner } from "@/components/shared/icons";
 import SearchInput from "@/components/home/search-input";
 import CountingNumbers from "@/components/shared/counting-numbers";
 import { Filter } from "models/filter";
