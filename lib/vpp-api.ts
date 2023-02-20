@@ -16,10 +16,10 @@ export const getProducts = (
     page = 1,
     {
         search = "",
-        filters = {}
+        filters = []
     }: {
         search?: string;
-        filters?: Filter;
+        filters?: Filter[];
     } = {}) => {
 
     const query = {
@@ -28,17 +28,19 @@ export const getProducts = (
             page,
             withCount: true,
         },
-        ...((search && search !== "") && {
-            filters: {
-                title: {
-                    $containsi: search
-                },
-            }
-        }),
-        ...((filters && Object.keys(filters).length > 0) && {
-            filters
-        })
+        filters: {
+            "$and": [
+                ...filters,
+                ...(search && search !== "" ? [{
+                    title: {
+                        $containsi: search
+                    }
+                }] : [])
+            ]
+        }
     };
 
-    return vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + qs.stringify(query, { encoreValuesOnly: true }));
+    const stringifiedQuery = qs.stringify(query, { encode: false });
+
+    return vppAxios.get<StrapiGetResponse<Product>>(API_PRODUCTS_COLLECTION + "?" + stringifiedQuery);
 };

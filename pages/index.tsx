@@ -9,12 +9,10 @@ import { useCallback, useEffect, useState } from "react";
 import { timeAgo } from "@/lib/utils";
 import { LoadingCircle } from "@/components/shared/icons";
 import SearchInput from "@/components/home/search-input";
-import { useFiltersModal } from "@/components/home/filters-modal";
 import CountingNumbers from "@/components/shared/counting-numbers";
 import { Filter } from "models/filter";
-
-const activeFilterStyle = "bg-indigo-500 text-white hover:bg-indigo-600 border-t border-indigo-400 hover:shadow-lg";
-const inactiveFilterStyle = "border border-indigo-200 text-indigo-500 hover:bg-indigo-500 hover:text-white hover:shadow-lg";
+import FiltersButton from "@/components/home/filters-button";
+import { defaultFilters } from "models/fast-filter.config";
 
 export default function Home(props: { products: Product[], error: string, pageCount: number, count: number }) {
 
@@ -26,12 +24,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
-  const [filters, setFilters] = useState({} as Filter);
-
-  const { FiltersModal, setShowFiltersModal } = useFiltersModal((filters: Filter) => {
-    setFilters(filters);
-    setShowFiltersModal(false);
-  });
+  const [filters, setFilters] = useState<Filter[]>([]);
 
   const load = useCallback((reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
@@ -74,7 +67,6 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
   return (
     <Layout>
-      <FiltersModal />
       <motion.div
         className="max-w-xl px-5 xl:px-0 flex flex-col gap-8"
         initial="hidden"
@@ -108,13 +100,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
         <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS} className="flex max-md:flex-col gap-3 items-center">
           <SearchInput className="flex-1" onSearch={setSearchInput}></SearchInput>
-
-          <button
-            onClick={() => setShowFiltersModal(true)}
-            className={"flex items-center justify-center rounded-xl px-8 py-3 transition focus:outline-none " + (Object.values(filters).length > 0 ? activeFilterStyle : inactiveFilterStyle)}
-          >
-            {Object.values(filters).length > 0 ? "Filtres" : "Filtrer"}
-          </button>
+          <FiltersButton fastFilters={defaultFilters} onFiltersChange={setFilters} />
         </motion.div>
 
         <motion.p

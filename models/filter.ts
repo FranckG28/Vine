@@ -1,5 +1,5 @@
 export interface Filter {
-    [key: string | '$and' | '$or']: {
+    [key: string]: {
         [key: string]: any;
     };
 }

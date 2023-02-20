@@ -6,39 +6,61 @@ import {
   useCallback,
   useMemo,
 } from "react";
-import { Filter } from "models/filter";
-import { defaultFilters } from "models/fast-filter.config";
-import FilterItem from "./filter-item";
+import { FastFilter } from "models/fast-filter";
+import FilterChip from "./filter-chip";
+
+interface FiltersHookInterface {
+  fastFilters: FastFilter[];
+  initialActiveIds: number[];
+  applyFilters: (activeFiltersIds: number[]) => void;
+}
+
+interface FilterModalInterface extends FiltersHookInterface {
+  showFiltersModal: boolean;
+  setShowFilterModal: Dispatch<SetStateAction<boolean>>;
+}
 
 const FiltersModal = ({
   showFiltersModal,
   setShowFilterModal,
-  onApply
-}: {
-  showFiltersModal: boolean;
-  setShowFilterModal: Dispatch<SetStateAction<boolean>>;
-  onApply: (filter: Filter) => void;
-}) => {
+  fastFilters,
+  initialActiveIds,
+  applyFilters,
+}: FilterModalInterface) => {
 
-  const [filters, setFilters] = useState<{ [id: number]: Filter }>({});
+  const [activeFilters, setActiveFilters] = useState<number[]>(initialActiveIds);
+
+  const onFilterClick = (id: number) => {
+    if (activeFilters.includes(id)) {
+      setActiveFilters(activeFilters.filter((activeId) => activeId !== id));
+    } else {
+      setActiveFilters([...activeFilters, id]);
+    }
+  };
 
   return (
     <Modal showModal={showFiltersModal} setShowModal={setShowFilterModal}>
-      <div className="w-full overflow-hidden shadow-xl md:max-w-md md:rounded-2xl md:border md:border-gray-200">
-        <div className="flex flex-col items-center justify-center space-y-3 border-b border-gray-200 bg-white px-8 py-6 pt-8 text-center">
-          <h3 className="font-display text-2xl font-bold">Filtrer</h3>
+      <div className="w-full overflow-hidden shadow-xl md:max-w-xl md:rounded-2xl md:border md:border-gray-200">
+        <div className="flex flex-col items-left justify-center border-b border-gray-200 bg-white px-8 py-6 pt-8 gap-5">
 
-          {defaultFilters.map((fastFilter) => <FilterItem key={fastFilter.id} filter={fastFilter} onChange={(content) => {
-            setFilters({ ...filters, [fastFilter.id]: content });
-          }} />)}
+          <div>
+            <h3 className="font-display text-2xl font-bold">Masquer des produits</h3>
+            <p className="text-slate-600">Sélectionnez les produits que vous ne souhaitez pas voir.</p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            {fastFilters.map((fastFilter) =>
+              <FilterChip key={fastFilter.id} fastFilter={fastFilter} onClick={() => onFilterClick(fastFilter.id)} active={activeFilters.includes(fastFilter.id)} />
+            )}
+          </div>
 
         </div>
 
         <div className="flex flex-col space-y-4 bg-gray-50 px-2 py-6 md:px-12">
           <button
-            className="border-t transition border-indigo-400 bg-indigo-500 text-white hover:bg-indigo-600 flex h-10 w-full items-center justify-center space-x-3 rounded-lg shadow hover:shadow-lg focus:outline-none"
-            onClick={() => onApply(Object.values(filters).reduce((acc, filter) => ({ ...acc, ...filter }), {}))}>
-            Appliquer
+            className="border-t transition border-indigo-400 bg-indigo-500 text-white hover:bg-indigo-600 flex h-10 w-full items-center justify-center space-x-3 rounded-lg shadow hover:shadow-lg focus:outline-none font-semibold"
+            onClick={() => applyFilters(activeFilters)}>
+            Appliquer {activeFilters.length > 0 && `(${activeFilters.length} ${activeFilters.length > 1 ? "filtres" : "filtre"})`}
           </button>
         </div>
       </div>
@@ -46,7 +68,11 @@ const FiltersModal = ({
   );
 };
 
-export function useFiltersModal(onApply: (filter: Filter) => void) {
+export function useFiltersModal({
+  fastFilters,
+  initialActiveIds,
+  applyFilters
+}: FiltersHookInterface) {
   const [showFiltersModal, setShowFiltersModal] = useState(false);
 
   const FiltersModalCallback = useCallback(() => {
@@ -54,10 +80,12 @@ export function useFiltersModal(onApply: (filter: Filter) => void) {
       <FiltersModal
         showFiltersModal={showFiltersModal}
         setShowFilterModal={setShowFiltersModal}
-        onApply={onApply}
+        applyFilters={applyFilters}
+        fastFilters={fastFilters}
+        initialActiveIds={initialActiveIds}
       />
     );
-  }, [showFiltersModal, setShowFiltersModal, onApply]);
+  }, [showFiltersModal, setShowFiltersModal, applyFilters, fastFilters, initialActiveIds]);
 
   return useMemo(
     () => ({ setShowFiltersModal, FiltersModal: FiltersModalCallback }),
