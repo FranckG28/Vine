@@ -38,6 +38,14 @@ const FiltersModal = ({
     }
   };
 
+  const toggleAllFilters = useCallback(() => {
+    if (activeFilters.length === fastFilters.length) {
+      setActiveFilters([]);
+    } else {
+      setActiveFilters(fastFilters.map((fastFilter) => fastFilter.id));
+    }
+  }, [activeFilters, fastFilters]);
+
   return (
     <Modal showModal={showFiltersModal} setShowModal={setShowFilterModal}>
       <div className="w-full overflow-hidden shadow-xl md:max-w-xl md:rounded-2xl md:border md:border-gray-200">
@@ -46,6 +54,12 @@ const FiltersModal = ({
           <div>
             <h3 className="font-display text-2xl font-bold">Masquer des produits</h3>
             <p className="text-slate-600">Sélectionnez les produits que vous ne souhaitez pas voir.</p>
+          </div>
+
+          <div>
+            <button onClick={toggleAllFilters} className="font-medium text-indigo-500 hover:text-indigo-600 active:text-indigo-700">
+              {activeFilters.length > 0 ? "Tout déselectionner" : "Tout sélectionner"}
+            </button>
           </div>
 
           <div className="flex flex-wrap gap-3">
