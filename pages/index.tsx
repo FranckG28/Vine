@@ -8,7 +8,6 @@ import { getProducts } from "@/lib/vpp-api";
 import { useCallback, useEffect, useState } from "react";
 import { timeAgo } from "@/lib/utils";
 import SearchInput from "@/components/home/search-input";
-import CountingNumbers from "@/components/shared/counting-numbers";
 import { Filter } from "models/filter";
 import FiltersButton from "@/components/home/filters-button";
 import { defaultFilters } from "models/fast-filter.config";
@@ -107,7 +106,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
           className="text-center text-gray-500 md:text-xl"
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
-          <CountingNumbers className="inline" value={resultCount} /> produits
+          {resultCount} produits
         </motion.p>
 
       </motion.div>
