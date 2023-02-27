@@ -27,7 +27,7 @@ export default function ProductsGrid({ error, products, hightlighter }: {
                         className={(hightlighter(product)) ? "bg-green-100" : ""}
                         title={product.attributes.title}
                         description={dateToString(new Date(Date.parse(product.attributes.updatedAt))) + ((!product.attributes.page) ? " " : " - *page " + product.attributes.page + "*")}
-                        demo={<Image alt="Product thumbnail" src={product.attributes.image} width={250} height={250}></Image>}
+                        demo={<img alt="Product thumbnail" src={product.attributes.image} width={250} height={250}></img>}
                     />
                 </Link>
             ))}
