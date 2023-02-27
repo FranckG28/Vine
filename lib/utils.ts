@@ -10,6 +10,14 @@ export const timeAgo = (timestamp: Date): string => {
   return `il y a ${ms(Date.now() - new Date(timestamp).getTime(), { long: true })}`;
 };
 
+export const isSameDay = (date1: Date, date2: Date): boolean => {
+  return date1.toDateString() === date2.toDateString();
+};
+
+export const getLatestDate = (dates: Date[]): Date => {
+  return dates.reduce((a, b) => (a > b ? a : b));
+};
+
 export async function fetcher<JSON = any>(
   input: RequestInfo,
   init?: RequestInit,

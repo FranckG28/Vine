@@ -6,26 +6,34 @@ import { Product } from "models/product";
 import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
 import { useCallback, useEffect, useState } from "react";
-import { timeAgo } from "@/lib/utils";
+import { getLatestDate, isSameDay, timeAgo } from "@/lib/utils";
 import SearchInput from "@/components/home/search-input";
 import { Filter } from "models/filter";
 import FiltersButton from "@/components/home/filters-button";
 import { defaultFilters } from "models/fast-filter.config";
 import Button from "@/components/home/button";
 
-export default function Home(props: { products: Product[], error: string, pageCount: number, count: number }) {
+export default function Home(props: {
+  products: Product[],
+  error: string,
+  pageCount: number,
+  count: number,
+  latestUpdate: number
+}) {
 
-  const [latestUpdate, setLatestUpdate] = useState<number>(0);
+  const [latestUpdate, setLatestUpdate] = useState<Date>(new Date(props.latestUpdate));
   const [error, setError] = useState(props.error);
   const [products, setProductList] = useState(props.products);
   const [pageCount, setPageCount] = useState(props.pageCount);
   const [resultCount, setResultCount] = useState(props.count);
+
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [filters, setFilters] = useState<Filter[]>([]);
 
   const load = useCallback((reset: boolean, requestedPage?: number) => {
+    console.log("Loading products ...");
     setIsLoading(true);
     getProducts(requestedPage || 1, {
       search: searchInput,
@@ -41,6 +49,9 @@ export default function Home(props: { products: Product[], error: string, pageCo
     });
   }, [searchInput, products, filters]);
 
+  const hightlighter = useCallback((product: Product): boolean => {
+    return isSameDay(new Date(Date.parse(product.attributes.updatedAt)), new Date(latestUpdate));
+  }, [latestUpdate]);
 
   useEffect(() => {
     if (error) {
@@ -50,7 +61,11 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
   useEffect(() => {
     if (!latestUpdate) {
-      setLatestUpdate(Math.max(...products.map((product) => Date.parse(product.attributes.updatedAt))));
+      setLatestUpdate(
+        getLatestDate(products
+          .map((product) => new Date(Date.parse(product.attributes.updatedAt)))
+        )
+      );
     }
   }, [latestUpdate, products]);
 
@@ -93,7 +108,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
           <Balancer>
-            {"Dernière mise à jour " + timeAgo(new Date(latestUpdate))}
+            {"Dernière mise à jour " + timeAgo(latestUpdate)}
           </Balancer>
         </motion.p>
 
@@ -111,7 +126,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
       </motion.div>
 
-      <ProductsGrid products={products} error={error} />
+      <ProductsGrid products={products} error={error} hightlighter={hightlighter} />
 
       <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
         <Button onClick={loadMore} disabled={pageCount <= page} isLoading={isLoading}>
@@ -126,11 +141,14 @@ export default function Home(props: { products: Product[], error: string, pageCo
 export async function getServerSideProps() {
   try {
     const res = await getProducts();
+    const latestUpdate: number = getLatestDate(res.data.data.map((product) => new Date(Date.parse(product.attributes.createdAt)))).getTime();
+
     return {
       props: {
         products: res.data.data,
         pageCount: res.data.meta?.pagination?.pageCount,
-        count: res.data.meta?.pagination?.total
+        count: res.data.meta?.pagination?.total,
+        latestUpdate,
       }
     };
   } catch (error) {

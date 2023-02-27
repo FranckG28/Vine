@@ -5,7 +5,11 @@ import Link from "next/link";
 import ErrorDisplay from "../shared/error-display";
 import Card from "./card";
 
-export default function ProductsGrid({ error, products }: { products: Product[], error: string }) {
+export default function ProductsGrid({ error, products, hightlighter }: {
+    products: Product[],
+    error: string,
+    hightlighter: (product: Product) => boolean
+}) {
 
     if (error) {
         return <ErrorDisplay error={error} />
@@ -17,12 +21,13 @@ export default function ProductsGrid({ error, products }: { products: Product[],
 
     return (
         <div className="my-10 grid w-full max-w-screen-xl animate-[slide-down-fade_0.5s_ease-in-out] grid-cols-1 gap-5 px-5 md:grid-cols-3 xl:px-0">
-            {products.map(({ attributes: { title, link, image, page, updatedAt } }, index) => (
-                <Link href={link} key={index} target="_blank" rel="noreferrer">
+            {products.map((product, index) => (
+                <Link href={product.attributes.link} key={index} target="_blank" rel="noreferrer">
                     <Card
-                        title={title}
-                        description={dateToString(new Date(Date.parse(updatedAt))) + ((!page) ? " " : " - *page " + page + "*")}
-                        demo={<Image alt="Product thumbnail" src={image} width={250} height={250}></Image>}
+                        className={(hightlighter(product)) ? "bg-green-100" : ""}
+                        title={product.attributes.title}
+                        description={dateToString(new Date(Date.parse(product.attributes.updatedAt))) + ((!product.attributes.page) ? " " : " - *page " + product.attributes.page + "*")}
+                        demo={<Image alt="Product thumbnail" src={product.attributes.image} width={250} height={250}></Image>}
                     />
                 </Link>
             ))}

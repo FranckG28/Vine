@@ -7,16 +7,18 @@ export default function Card({
   description,
   demo,
   large,
+  className,
 }: {
   title: string;
   description: string;
   demo: ReactNode;
   large?: boolean;
+  className?: string;
 }) {
   return (
     <div
       className={`relative col-span-1 md:h-96 overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md hover:shadow-xl transition-all mt-1 mb-0 hover:mt-0 hover:mb-1 duration-200 ease-in-out ${large ? "md:col-span-2" : ""
-        }`}
+        } ${className}`}
     >
       <div className="flex h-60 items-center justify-center my-5">{demo}</div>
       <div className="mx-auto max-w-md text-center">
