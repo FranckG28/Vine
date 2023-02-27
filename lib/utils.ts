@@ -15,7 +15,7 @@ export const isSameDay = (date1: Date, date2: Date): boolean => {
 };
 
 export const getLatestDate = (dates: Date[]): Date => {
-  return dates.reduce((a, b) => (a > b ? a : b));
+  return dates.reduce((a, b) => (a > b ? a : b), new Date(0));
 };
 
 export async function fetcher<JSON = any>(

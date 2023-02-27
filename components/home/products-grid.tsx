@@ -1,6 +1,5 @@
 import { dateToString } from "@/lib/utils";
 import { Product } from "models/product";
-import Image from "next/image";
 import Link from "next/link";
 import ErrorDisplay from "../shared/error-display";
 import Card from "./card";
@@ -27,6 +26,7 @@ export default function ProductsGrid({ error, products, hightlighter }: {
                         className={(hightlighter(product)) ? "bg-green-100" : ""}
                         title={product.attributes.title}
                         description={dateToString(new Date(Date.parse(product.attributes.updatedAt))) + ((!product.attributes.page) ? " " : " - *page " + product.attributes.page + "*")}
+                        // eslint-disable-next-line @next/next/no-img-element
                         demo={<img alt="Product thumbnail" src={product.attributes.image} width={250} height={250}></img>}
                     />
                 </Link>

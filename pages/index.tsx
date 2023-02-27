@@ -13,19 +13,13 @@ import FiltersButton from "@/components/home/filters-button";
 import { defaultFilters } from "models/fast-filter.config";
 import Button from "@/components/home/button";
 
-export default function Home(props: {
-  products: Product[],
-  error: string,
-  pageCount: number,
-  count: number,
-  latestUpdate: number
-}) {
+export default function Home() {
 
-  const [latestUpdate, setLatestUpdate] = useState<Date>(new Date(props.latestUpdate));
-  const [error, setError] = useState(props.error);
-  const [products, setProductList] = useState(props.products);
-  const [pageCount, setPageCount] = useState(props.pageCount);
-  const [resultCount, setResultCount] = useState(props.count);
+  const [latestUpdate, setLatestUpdate] = useState<Date>(new Date());
+  const [error, setError] = useState("");
+  const [products, setProductList] = useState([] as Product[]);
+  const [pageCount, setPageCount] = useState(0);
+  const [resultCount, setResultCount] = useState(0);
 
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,21 +27,29 @@ export default function Home(props: {
   const [filters, setFilters] = useState<Filter[]>([]);
 
   const load = useCallback((reset: boolean, requestedPage?: number) => {
-    console.log("Loading products ...");
-    setIsLoading(true);
-    getProducts(requestedPage || 1, {
-      search: searchInput,
-      filters
-    }).then((res) => {
-      setProductList(reset ? res.data.data : [...products, ...res.data.data]);
-      setPageCount(res.data.meta?.pagination?.pageCount || 0);
-      setResultCount(res.data.meta?.pagination?.total || 0);
-    }).catch((error) => {
-      setError(error);
-    }).finally(() => {
-      setIsLoading(false);
-    });
-  }, [searchInput, products, filters]);
+    if (!isLoading) {
+      console.log("Loading products ...");
+      setIsLoading(true);
+      getProducts(requestedPage || 1, {
+        search: searchInput,
+        filters
+      }).then((res) => {
+        const newProducts = reset ? res.data.data : [...products, ...res.data.data];
+        setProductList(newProducts);
+        setPageCount(res.data.meta?.pagination?.pageCount || 0);
+        setResultCount(res.data.meta?.pagination?.total || 0);
+        setLatestUpdate(
+          getLatestDate(newProducts
+            .map((product) => new Date(Date.parse(product.attributes.updatedAt)))
+          )
+        );
+      }).catch((error: Error) => {
+        setError(error.message);
+      }).finally(() => {
+        setIsLoading(false);
+      });
+    }
+  }, [filters, isLoading, products, searchInput]);
 
   const hightlighter = useCallback((product: Product): boolean => {
     return isSameDay(new Date(Date.parse(product.attributes.updatedAt)), new Date(latestUpdate));
@@ -58,16 +60,6 @@ export default function Home(props: {
       console.error(error);
     }
   }, [error]);
-
-  useEffect(() => {
-    if (!latestUpdate) {
-      setLatestUpdate(
-        getLatestDate(products
-          .map((product) => new Date(Date.parse(product.attributes.updatedAt)))
-        )
-      );
-    }
-  }, [latestUpdate, products]);
 
   useEffect(() => {
     setProductList([]);
@@ -128,34 +120,13 @@ export default function Home(props: {
 
       <ProductsGrid products={products} error={error} hightlighter={hightlighter} />
 
-      <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
+      {!error && <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
         <Button onClick={loadMore} disabled={pageCount <= page} isLoading={isLoading}>
-          {page >= pageCount ? "C'est fini 😿" : "Voir plus"}
+          {isLoading ? "Chargement ..." :
+            page >= pageCount ? "C'est fini 😿" : "Voir plus"}
         </Button>
-      </motion.div>
+      </motion.div>}
 
     </Layout >
   );
-}
-
-export async function getServerSideProps() {
-  try {
-    const res = await getProducts();
-    const latestUpdate: number = getLatestDate(res.data.data.map((product) => new Date(Date.parse(product.attributes.createdAt)))).getTime();
-
-    return {
-      props: {
-        products: res.data.data,
-        pageCount: res.data.meta?.pagination?.pageCount,
-        count: res.data.meta?.pagination?.total,
-        latestUpdate,
-      }
-    };
-  } catch (error) {
-    return {
-      props: {
-        error
-      }
-    }
-  }
 }
