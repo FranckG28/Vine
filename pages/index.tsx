@@ -27,29 +27,28 @@ export default function Home() {
   const [filters, setFilters] = useState<Filter[]>([]);
 
   const load = useCallback((reset: boolean, requestedPage?: number) => {
-    if (!isLoading) {
-      console.log("Loading products ...");
-      setIsLoading(true);
-      getProducts(requestedPage || 1, {
-        search: searchInput,
-        filters
-      }).then((res) => {
-        const newProducts = reset ? res.data.data : [...products, ...res.data.data];
-        setProductList(newProducts);
-        setPageCount(res.data.meta?.pagination?.pageCount || 0);
-        setResultCount(res.data.meta?.pagination?.total || 0);
-        setLatestUpdate(
-          getLatestDate(newProducts
-            .map((product) => new Date(Date.parse(product.attributes.updatedAt)))
-          )
-        );
-      }).catch((error: Error) => {
-        setError(error.message);
-      }).finally(() => {
-        setIsLoading(false);
-      });
-    }
-  }, [filters, isLoading, products, searchInput]);
+    setIsLoading(true);
+    console.log("Loading products ...");
+    getProducts(requestedPage || 1, {
+      search: searchInput,
+      filters
+    }).then((res) => {
+      const newProducts = reset ? res.data.data : [...products, ...res.data.data];
+      setPageCount(res.data.meta?.pagination?.pageCount || 0);
+      setResultCount(res.data.meta?.pagination?.total || 0);
+      setLatestUpdate(
+        getLatestDate(newProducts
+          .map((product) => new Date(Date.parse(product.attributes.updatedAt)))
+        )
+      );
+      setError("");
+      setProductList(newProducts);
+    }).catch((error: Error) => {
+      setError(error.message);
+    }).finally(() => {
+      setIsLoading(false);
+    });
+  }, [filters, products, searchInput]);
 
   const hightlighter = useCallback((product: Product): boolean => {
     return isSameDay(new Date(Date.parse(product.attributes.updatedAt)), new Date(latestUpdate));
@@ -61,15 +60,14 @@ export default function Home() {
     }
   }, [error]);
 
-  useEffect(() => {
-    setProductList([]);
-    load(true);
-  }, [searchInput, filters]);
-
   const loadMore = () => {
     load(false, page + 1);
     setPage(page + 1);
   };
+
+  useEffect(() => {
+    load(true);
+  }, [filters, searchInput]);
 
   return (
     <Layout>
