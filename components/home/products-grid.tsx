@@ -23,7 +23,7 @@ export default function ProductsGrid({ error, products, hightlighter }: {
             {products.map((product, index) => (
                 <Link href={product.attributes.link} key={index} target="_blank" rel="noreferrer">
                     <Card
-                        className={(hightlighter(product)) ? "bg-green-100" : ""}
+                        className={hightlighter(product) ? "border-2 border-indigo-400/30 shadow-xl shadow-indigo-400/30" : ""}
                         title={product.attributes.title}
                         description={dateToString(new Date(Date.parse(product.attributes.updatedAt))) + ((!product.attributes.page) ? " " : " - *page " + product.attributes.page + "*")}
                         // eslint-disable-next-line @next/next/no-img-element

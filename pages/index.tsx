@@ -26,6 +26,13 @@ export default function Home() {
   const [searchInput, setSearchInput] = useState("");
   const [filters, setFilters] = useState<Filter[]>([]);
 
+  const hightlighter = useCallback((product: Product): boolean => {
+    const productDate = new Date(Date.parse(product.attributes.updatedAt));
+    console.log("product", productDate);
+    console.log("latest", latestUpdate);
+    return isSameDay(productDate, new Date(latestUpdate));
+  }, [latestUpdate]);
+
   const load = useCallback((reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
     console.log("Loading products ...");
@@ -49,10 +56,6 @@ export default function Home() {
       setIsLoading(false);
     });
   }, [filters, products, searchInput]);
-
-  const hightlighter = useCallback((product: Product): boolean => {
-    return isSameDay(new Date(Date.parse(product.attributes.updatedAt)), new Date(latestUpdate));
-  }, [latestUpdate]);
 
   useEffect(() => {
     if (error) {
