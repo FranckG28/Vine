@@ -2,6 +2,27 @@
 
 🌞
 
+## Contribute
+
+1. Fork/Clone the project
+
+2. Set API_KEY in environement variables (contact me to get an API_KEY).
+
+`.env`:
+```
+NEXT_PUBLIC_VPP_API_KEY=<API_KEY>
+```
+
+3. Install dependencies:
+```
+npm i
+```
+
+4. Run :
+```
+npm run dev
+```
+
 
 ## Tech Stack
 
