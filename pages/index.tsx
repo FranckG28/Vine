@@ -28,14 +28,11 @@ export default function Home() {
 
   const hightlighter = useCallback((product: Product): boolean => {
     const productDate = new Date(Date.parse(product.attributes.updatedAt));
-    console.log("product", productDate);
-    console.log("latest", latestUpdate);
     return isSameDay(productDate, new Date(latestUpdate));
   }, [latestUpdate]);
 
   const load = useCallback((reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
-    console.log("Loading products ...");
     getProducts(requestedPage || 1, {
       search: searchInput,
       filters

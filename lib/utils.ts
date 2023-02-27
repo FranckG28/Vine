@@ -11,8 +11,6 @@ export const timeAgo = (timestamp: Date): string => {
 };
 
 export const isSameDay = (date1: Date, date2: Date): boolean => {
-  console.log(date1.toDateString(), date2.toDateString());
-  console.log("result", date1.toDateString() === date2.toDateString());
   return date1.toDateString() === date2.toDateString();
 };
 
