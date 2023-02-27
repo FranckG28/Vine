@@ -6,7 +6,7 @@ export const defaultFilters: FastFilter[] = [
     {
         id: 1,
         name: "Cartouches",
-        filters: notContainsiList("title", ["cartouches", "cartouche"])
+        filters: notContainsiList("title", ["cartouche", "toner", "deskjet", "officejet"])
     },
     {
         id: 2,
@@ -16,11 +16,11 @@ export const defaultFilters: FastFilter[] = [
     {
         id: 3,
         name: "Compléments alimentaires",
-        filters: notContainsiList("title", ["complément", "alimentaire", "vitamines", "gélule", "vitamine", "gélules", "comprimés"])
+        filters: notContainsiList("title", ["complément", "alimentaire", "gélule", "vitamine", "comprimé"])
     },
     {
         id: 4,
         name: "Bracelets",
-        filters: notContainsiList("title", ["bracelet", "bracelets"])
+        filters: notContainsiList("title", ["bracelet"])
     }
 ];

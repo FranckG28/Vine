@@ -6,24 +6,30 @@ import { Product } from "models/product";
 import ProductsGrid from "@/components/home/products-grid";
 import { getProducts } from "@/lib/vpp-api";
 import { useCallback, useEffect, useState } from "react";
-import { timeAgo } from "@/lib/utils";
+import { getLatestDate, isSameDay, timeAgo } from "@/lib/utils";
 import SearchInput from "@/components/home/search-input";
 import { Filter } from "models/filter";
 import FiltersButton from "@/components/home/filters-button";
 import { defaultFilters } from "models/fast-filter.config";
 import Button from "@/components/home/button";
 
-export default function Home(props: { products: Product[], error: string, pageCount: number, count: number }) {
+export default function Home() {
 
-  const [latestUpdate, setLatestUpdate] = useState<number>(0);
-  const [error, setError] = useState(props.error);
-  const [products, setProductList] = useState(props.products);
-  const [pageCount, setPageCount] = useState(props.pageCount);
-  const [resultCount, setResultCount] = useState(props.count);
+  const [latestUpdate, setLatestUpdate] = useState<Date>(new Date());
+  const [error, setError] = useState("");
+  const [products, setProductList] = useState([] as Product[]);
+  const [pageCount, setPageCount] = useState(0);
+  const [resultCount, setResultCount] = useState(0);
+
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [filters, setFilters] = useState<Filter[]>([]);
+
+  const hightlighter = useCallback((product: Product): boolean => {
+    const productDate = new Date(Date.parse(product.attributes.updatedAt));
+    return isSameDay(productDate, new Date(latestUpdate));
+  }, [latestUpdate]);
 
   const load = useCallback((reset: boolean, requestedPage?: number) => {
     setIsLoading(true);
@@ -31,16 +37,22 @@ export default function Home(props: { products: Product[], error: string, pageCo
       search: searchInput,
       filters
     }).then((res) => {
-      setProductList(reset ? res.data.data : [...products, ...res.data.data]);
+      const newProducts = reset ? res.data.data : [...products, ...res.data.data];
       setPageCount(res.data.meta?.pagination?.pageCount || 0);
       setResultCount(res.data.meta?.pagination?.total || 0);
-    }).catch((error) => {
-      setError(error);
+      setLatestUpdate(
+        getLatestDate(newProducts
+          .map((product) => new Date(Date.parse(product.attributes.updatedAt)))
+        )
+      );
+      setError("");
+      setProductList(newProducts);
+    }).catch((error: Error) => {
+      setError(error.message);
     }).finally(() => {
       setIsLoading(false);
     });
-  }, [searchInput, products, filters]);
-
+  }, [filters, products, searchInput]);
 
   useEffect(() => {
     if (error) {
@@ -48,21 +60,14 @@ export default function Home(props: { products: Product[], error: string, pageCo
     }
   }, [error]);
 
-  useEffect(() => {
-    if (!latestUpdate) {
-      setLatestUpdate(Math.max(...products.map((product) => Date.parse(product.attributes.updatedAt))));
-    }
-  }, [latestUpdate, products]);
-
-  useEffect(() => {
-    setProductList([]);
-    load(true);
-  }, [searchInput, filters]);
-
   const loadMore = () => {
     load(false, page + 1);
     setPage(page + 1);
   };
+
+  useEffect(() => {
+    load(true);
+  }, [filters, searchInput]);
 
   return (
     <Layout>
@@ -93,7 +98,7 @@ export default function Home(props: { products: Product[], error: string, pageCo
           variants={FADE_DOWN_ANIMATION_VARIANTS}
         >
           <Balancer>
-            {"Dernière mise à jour " + timeAgo(new Date(latestUpdate))}
+            {"Dernière mise à jour " + timeAgo(latestUpdate)}
           </Balancer>
         </motion.p>
 
@@ -111,33 +116,15 @@ export default function Home(props: { products: Product[], error: string, pageCo
 
       </motion.div>
 
-      <ProductsGrid products={products} error={error} />
+      <ProductsGrid products={products} error={error} hightlighter={hightlighter} />
 
-      <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
+      {!error && <motion.div variants={FADE_DOWN_ANIMATION_VARIANTS}>
         <Button onClick={loadMore} disabled={pageCount <= page} isLoading={isLoading}>
-          {page >= pageCount ? "C'est fini 😿" : "Voir plus"}
+          {isLoading ? "Chargement ..." :
+            page >= pageCount ? "C'est fini 😿" : "Voir plus"}
         </Button>
-      </motion.div>
+      </motion.div>}
 
     </Layout >
   );
-}
-
-export async function getServerSideProps() {
-  try {
-    const res = await getProducts();
-    return {
-      props: {
-        products: res.data.data,
-        pageCount: res.data.meta?.pagination?.pageCount,
-        count: res.data.meta?.pagination?.total
-      }
-    };
-  } catch (error) {
-    return {
-      props: {
-        error
-      }
-    }
-  }
 }

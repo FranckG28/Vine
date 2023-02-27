@@ -10,27 +10,13 @@ export const timeAgo = (timestamp: Date): string => {
   return `il y a ${ms(Date.now() - new Date(timestamp).getTime(), { long: true })}`;
 };
 
-export async function fetcher<JSON = any>(
-  input: RequestInfo,
-  init?: RequestInit,
-): Promise<JSON> {
-  const res = await fetch(input, init);
+export const isSameDay = (date1: Date, date2: Date): boolean => {
+  return date1.toDateString() === date2.toDateString();
+};
 
-  if (!res.ok) {
-    const json = await res.json();
-    if (json.error) {
-      const error = new Error(json.error) as Error & {
-        status: number;
-      };
-      error.status = res.status;
-      throw error;
-    } else {
-      throw new Error("An unexpected error occurred");
-    }
-  }
-
-  return res.json();
-}
+export const getLatestDate = (dates: Date[]): Date => {
+  return dates.reduce((a, b) => (a > b ? a : b), new Date(0));
+};
 
 export function nFormatter(num: number, digits?: number) {
   if (!num) return "0";
