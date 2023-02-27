@@ -6,7 +6,7 @@ export const defaultFilters: FastFilter[] = [
     {
         id: 1,
         name: "Cartouches",
-        filters: notContainsiList("title", ["cartouches", "cartouche"])
+        filters: notContainsiList("title", ["cartouches", "cartouche", "toner", "deskjet", "officejet"])
     },
     {
         id: 2,
